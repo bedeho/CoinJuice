@@ -1,0 +1,66 @@
+package org.coinjuice.message;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import org.coinjuice.message.field.VariableLengthInteger;
+import org.coinjuice.message.field.BlockHeader;
+
+import org.coinjuice.exception.IncorrectNumberOfBlockHeadersException;
+import org.coinjuice.exception.UnknownMagicValueException;
+import org.coinjuice.exception.IncorrectNumberOfTransactionsException;
+
+public class HeadersMessagePayload extends MessagePayload {
+
+	// Number of block headers
+	private VariableLengthInteger count;
+
+	// Block headers
+	private BlockHeader[] block_header;
+
+	// Constructors
+	public HeadersMessagePayload(VariableLengthInteger count, BlockHeader[] block_header)  throws IncorrectNumberOfBlockHeadersException, UnknownMagicValueException {
+
+		// Set message payload fields
+		this.count = count;
+		this.block_header = block_header;
+
+		// Check if the stated number of block headers matches the actual number of block headers
+		if(count.value == block_header.length)
+			throw new IncorrectNumberOfBlockHeadersException(count.value, block_header.length);
+	}
+
+	public HeadersMessagePayload(ByteBuffer b) throws IncorrectNumberOfTransactionsException {
+
+		// count
+		count = new VariableLengthInteger(b); 
+
+		// block_header
+		for(int i = 0;i < count.value;i++)
+			block_header[i] = new BlockHeader(b);
+	}
+
+	// Produce raw version of message payload
+	public ByteBuffer raw() {
+
+		// Allocate buffer
+		ByteBuffer b = ByteBuffer.allocate(rawLength()).order(ByteOrder.LITTLE_ENDIAN);
+
+		// Populate
+		b.put(count.raw());
+
+		for(int i = 0;i < count.value;i++)
+			b.put(block_header[i].raw());
+
+		// Return rewinded buffer
+		b.rewind();
+
+		// Return bufffer
+		return b;
+	}
+
+	public int rawLength() {
+		return count.rawLength() + (int)count.value*BlockHeader.rawLength();
+	}
+
+}
