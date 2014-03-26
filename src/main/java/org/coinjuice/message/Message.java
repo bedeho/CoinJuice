@@ -8,11 +8,15 @@ import java.util.Arrays;
 
 import com.google.common.io.LittleEndianDataInputStream;
 
+import org.coinjuice.exception.CountFieldToLargeException;
+import org.coinjuice.exception.IncorrectNumberOfTransactionsException;
+import org.coinjuice.exception.ToManyEntriesException;
 import org.coinjuice.exception.UnknownMagicValueException;
 import org.coinjuice.exception.UnknownMessageTypeException;
 import org.coinjuice.exception.IncorrectPayloadLengthException;
 import org.coinjuice.exception.IncorrectChecksumException;
 import org.coinjuice.exception.UnImplemenetedMessageException;
+import org.coinjuice.exception.UnknownObjectTypeException;
 
 // Import all payloads
 //import org.coinjuice.message.*;
@@ -53,15 +57,15 @@ public class Message {
 		validateChecksumAndLengthFields();
 	}
 
-	public static MessagePayload createMessagePayload(LittleEndianDataInputStream input, MessageType type) throws UnImplemenetedMessageException {
+	public static MessagePayload createMessagePayload(LittleEndianDataInputStream input, MessageType type) throws UnImplemenetedMessageException, CountFieldToLargeException, IOException, ToManyEntriesException, UnknownObjectTypeException, IncorrectNumberOfTransactionsException {
 		
 		MessagePayload p;
 		
         switch(type) {
 
             case VERSION: p = new VersionMessagePayload(input); break;
-            case VERACK: p = new VerackMessagePayload(input); break;
-            case ADDR: p = new AddrkMessagePayload(input); break;
+            case VERACK: p = new EmptyMessagePayload(); break;
+            case ADDR: p = new AddrMessagePayload(input); break;
             case INV: p = new InvMessagePayload(input); break;
             case GETDATA: p = new GetDataMessagePayload(input); break;
             case NOTFOUND: p = new NotFoundMessagePayload(input); break;
@@ -70,7 +74,7 @@ public class Message {
             case TX: p = new TxMessagePayload(input); break;
             case BLOCK: p = new BlockMessagePayload(input); break;
             case HEADERS: p = new HeadersMessagePayload(input); break;
-            case GETADDR: p = new GetaddrMessagePayload(input); break;
+            case GETADDR: p = new EmptyMessagePayload(); break;
             case MEMPOOL: throw new UnImplemenetedMessageException(type); break;
             case CHECKORDER: throw new UnImplemenetedMessageException(type); break;
             case SUBMITORDER: throw new UnImplemenetedMessageException(type); break;
@@ -86,6 +90,8 @@ public class Message {
             default: // Unrecognized message, must be due to MessageType expansion, but not implemented as case in this switch.
             	throw new UnImplemenetedMessageException(type);
         }
+        
+        return p;
 	}
 
 	// Check that present checksum and length fields match payload
