@@ -1,7 +1,10 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import com.google.common.io.LittleEndianDataInputStream;
 
 // Services field in network adresses and in version message
 public class Services {
@@ -16,9 +19,13 @@ public class Services {
 	public Services() {
 		this.bitfield = 1;
 	}
-
+	
 	public Services(long bitfield) {
 		this.bitfield = bitfield;
+	}
+
+	public Services(LittleEndianDataInputStream input) throws IOException {
+		this.bitfield = input.readLong();
 	}
 
 	public Services(ByteBuffer raw) {

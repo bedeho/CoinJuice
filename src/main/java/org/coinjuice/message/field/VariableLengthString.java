@@ -1,8 +1,10 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 
@@ -17,20 +19,19 @@ public class VariableLengthString {
 	// hence this is a potential for a bug if someone sends a gigantic string
 	String s;
 
-	public VariableLengthString(ByteBuffer raw) {
+	public VariableLengthString(LittleEndianDataInputStream input) throws IOException {
 
 		// Load length of string
-		length = new VariableLengthInteger(raw);
+		length = new VariableLengthInteger(input);
 
 		// Allocate space for string
-		byte [] stringField = new byte[length.size];
+		byte [] stringField = new byte[length.getValue()];
 
 		// Load string data into buffer
-		raw.get(stringField);
+		input.read(stringField);
 
 		// Save string
 		s = new String(stringField);
-
 	}
 
 	public VariableLengthString(String s) {
@@ -38,9 +39,8 @@ public class VariableLengthString {
 		// Save string
 		this.s = s;
 
-		// Pick most compact variable integer represenation
+		// Pick most compact variable integer representation
 		this.length = new VariableLengthInteger(s.length());
-
 	}
 
 	// Computes raw data from fields
@@ -56,14 +56,12 @@ public class VariableLengthString {
 		// Return rewinded buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
-		
 	}
 
 	// Size of raw byte stream of field
 	public int rawLength() {
 		return length.rawLength() + s.length();
 	}
-
 }

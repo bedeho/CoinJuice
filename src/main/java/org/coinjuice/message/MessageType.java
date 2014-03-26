@@ -2,6 +2,13 @@ package org.coinjuice.message;
 
 import org.coinjuice.exception.UnknownMessageTypeException;
 
+/** \class MessageType
+*
+* \brief Represents all the message types
+*
+* A more detailed class description...
+*
+*/
 // Enum covering all messages types in protocol
 public enum MessageType {
 
@@ -31,12 +38,12 @@ public enum MessageType {
 
 	private final String command;
 
-	private MessageType(String command) {
+	MessageType(String command) {
 		this.command = command;
 	}
 
 	// Get value of this enum instance
-	String getValue() {
+	public String getValue() {
 		return command;
 	}
 

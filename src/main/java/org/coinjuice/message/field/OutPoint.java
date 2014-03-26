@@ -1,9 +1,13 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
 import org.coinjuice.exception.IncorrectHashLengthException;
+import org.coinjuice.Util;
 
 public class OutPoint {
 
@@ -21,18 +25,14 @@ public class OutPoint {
 
 		this.hash = hash;
 		this.index = index;
-
 	}
 
-	public OutPoint(ByteBuffer b) {
+	public OutPoint(LittleEndianDataInputStream input) throws IOException {
 
 		// hash
-		hash = new char[32];
-		b.asCharBuffer().get(hash); // Read from buffer through view
-		b.position(b.position() + 32); 	 // Advance position
-
+		hash = Util.readChar(input, 32);
 		// index
-		b.getInt(index);
+		index = input.readInt();
 	}
 
 	// Computes raw data from fields
@@ -42,14 +42,13 @@ public class OutPoint {
 		ByteBuffer b = ByteBuffer.allocate(rawLength()).order(ByteOrder.LITTLE_ENDIAN);
 
 		// Populate
-		b.asCharBuffer().put(hash);  // Add to buffer through view
-		b.position(b.position() + 32); // Advance position in original buffer
+		Util.writeChar(b, hash);
 		b.putInt(index);
 
 		// Return rewinded buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
 	}
 

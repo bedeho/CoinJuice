@@ -2,14 +2,17 @@ package org.coinjuice.message.field;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.io.IOException;
+
+import com.google.common.io.LittleEndianDataInputStream;
 
 public class VariableLengthInteger {
 
 	// Size of this variable integer in bytes
-	public int size;
+	private int size;
 
 	// Actual long value
-	public long value;
+	private long value;
 
 	// Table of prefixes in variable length integer field, and what it means
 
@@ -28,30 +31,31 @@ public class VariableLengthInteger {
 	private final static byte PREFIX_FOUR_BYTE = -2;
 	private final static byte PREFIX_EIGHT_BYTE = -1;
 
-	public VariableLengthInteger(ByteBuffer raw) {
+	public VariableLengthInteger(LittleEndianDataInputStream input) throws IOException {
 
-		byte firstByte = raw.get();
+		byte firstByte = input.readByte();
 
 		if(firstByte == PREFIX_TWO_BYTE) {
 
 			size = 2;
-			value = raw.getShort();
+			value = input.readShort();
 
 		} else if(firstByte == PREFIX_FOUR_BYTE) {
 
 			size = 4;
-			value = raw.getInt();
+			value = input.readInt();
 
 		} else if(firstByte == PREFIX_EIGHT_BYTE) {
 
 			size = 8;
-			value = raw.getLong();
+			value = input.readLong();
 
 		}
 		else {
-
+			
+			// ONE BYTE
 			size = 1;
-			value = raw.get();
+			value = input.readByte();
 
 		}
 
@@ -92,13 +96,12 @@ public class VariableLengthInteger {
 				b.put(PREFIX_FOUR_BYTE).putInt((int)value);
 			else // (size == 8)
 				b.put(PREFIX_EIGHT_BYTE).putLong(value);
-				
 		}
 
 		// Return rewinded buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
 	}
 
@@ -110,5 +113,9 @@ public class VariableLengthInteger {
 		else
 			return size+1;
 	}
-
+	
+	// Return int version of variable
+	public int getValue() {
+		return (int)value;
+	}
 }

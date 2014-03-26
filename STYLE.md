@@ -23,8 +23,7 @@ Methods
  *
  * [detailed description]
  *
- * \param[in] [name of input parameter] [its description]
- * \param[out] [name of output parameter] [its description]
+ * \param [name of input parameter] [its description]
  * \return [information about return value]
  * \sa [see also section]
  * \note [any note about the function you might have]
@@ -34,7 +33,7 @@ Methods
 Members
 --------
 
-- Coming
+/**< Detailed description after the member */
 
 
 

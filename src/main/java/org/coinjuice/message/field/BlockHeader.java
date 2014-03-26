@@ -1,11 +1,16 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
 import org.coinjuice.message.field.VariableLengthInteger;
-import org.coinjuice.exception.ToFewNumberOfTransactionsException;
-import org.coinjuice.exception.IncorrectNumberOfTransactionsException;
+//import org.coinjuice.exception.ToFewNumberOfTransactionsException;
+//import org.coinjuice.exception.IncorrectNumberOfTransactionsException;
+import org.coinjuice.Util;
+
 
 public class BlockHeader {
 
@@ -30,7 +35,7 @@ public class BlockHeader {
 	// Number of transaction entries, this value is always 0
 	VariableLengthInteger txn_count;
 
-	public BlockHeader(int version, char [] prev_block, char [] merkle_root, int timestamp, int bits, int nonce, VariableLengthInteger txn_count) throws ToFewNumberOfTransactionsException {
+	public BlockHeader(int version, char [] prev_block, char [] merkle_root, int timestamp, int bits, int nonce, VariableLengthInteger txn_count) { // throws ToFewNumberOfTransactionsException
 
 		this.version = version;
 		this.prev_block = prev_block;
@@ -40,43 +45,41 @@ public class BlockHeader {
 		this.nonce = nonce;
 		this.txn_count = txn_count;
 
-		// Check that there is atleast 1 transaction
-		if(txn_count.value > 0)
-			throw new ToFewNumberOfTransactionsException(txn_count.value);
-
+		/*
+		// Check that there is at least 1 transaction
+		if(txn_count.getValue() > 0)
+			throw new ToFewNumberOfTransactionsException(txn_count.getValue());
+		*/
 	}
 
-	public BlockHeader(ByteBuffer b) throws IncorrectNumberOfTransactionsException {
+	public BlockHeader(LittleEndianDataInputStream input) throws IOException { //  throws IncorrectNumberOfTransactionsException 
 
 		// Version field
-		version = b.getInt();
+		version = input.readInt();
 
 		// Previous block hash field
-		prev_block = new char[32]; // Allocate buffer
-		b.asCharBuffer().get(prev_block); // Read through char array
-		b.position(b.position() + 32); // Advance buffer position
+		prev_block = Util.readChar(input, 32);
 
 		// Merkle tree hash
-		merkle_root = new char[32]; // Allocate buffer
-		b.asCharBuffer().get(merkle_root); // Read through char array
-		b.position(b.position() + 32); // Advance buffer position
+		merkle_root = Util.readChar(input, 32);
 
 		// UNIX timestamp
-		timestamp = b.getInt();
+		timestamp = input.readInt();
 
 		// Difficulty of block
-		bits = b.getInt();
+		bits = input.readInt();
 
 		// Nonce of block
-		nonce = b.getInt();
+		nonce = input.readInt();
 
 		// Number of transaction entries
-		txn_count = new VariableLengthInteger(b);
+		txn_count = new VariableLengthInteger(input);
 
+		/*
 		// Confirm number of transaction entries count being 0
-		if(txn_count.value != 0)
+		if(txn_count.getValue() != 0)
 			throw new IncorrectNumberOfTransactionsException(txn_count.value);
-
+		*/
 	}
 
 	public ByteBuffer raw() {
@@ -88,12 +91,10 @@ public class BlockHeader {
 		b.putInt(version);
 
 		// Previous block hash field
-		b.asCharBuffer().put(prev_block); // Write through char array
-		b.position(b.position() + 32); // Advance buffer position
+		Util.writeChar(b, prev_block);
 
 		// Merkle tree hash
-		b.asCharBuffer().put(merkle_root); // Write through char array
-		b.position(b.position() + 32); // Advance buffer position
+		Util.writeChar(b, merkle_root);
 
 		// UNIX timestamp
 		b.putInt(timestamp);
@@ -110,7 +111,7 @@ public class BlockHeader {
 		// Rewind buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
 	}
 
@@ -118,5 +119,4 @@ public class BlockHeader {
 	public static int rawLength() {
 		return 4+32+32+4+4+4+1;
 	}
-
 }

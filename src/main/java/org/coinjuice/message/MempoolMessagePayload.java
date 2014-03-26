@@ -3,9 +3,13 @@ package org.coinjuice.message;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.coinjuice.exception.UnknownMagicValueException;
-import org.coinjuice.exception.IncorrectPayloadLengthException;
-
+/** \class MempoolMessagePayload
+*
+* \brief Payload for Mempool message
+*
+* Briefly the message and the methods on the message
+*
+*/
 public class MempoolMessagePayload extends MessagePayload {
 
 	public ByteBuffer raw() {

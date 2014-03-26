@@ -1,18 +1,25 @@
 package org.coinjuice.message;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+
+import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.Tx;
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.message.field.TxIn;
 import org.coinjuice.message.field.TxOut;
-
 import org.coinjuice.exception.IncorrectNumberInputTransactionsException;
 import org.coinjuice.exception.IncorrectNumberOutputTransactionsException;
 import org.coinjuice.exception.ToManyEntriesException;
 
-
+/** \class TxMessagePayload
+*
+* \brief Represents payload for tx message
+*
+* A more detailed class description...
+*
+*/
 public class TxMessagePayload extends MessagePayload {
 
 	// Transaction data format version
@@ -23,8 +30,8 @@ public class TxMessagePayload extends MessagePayload {
 		transaction = new Tx(version, tx_in_count, tx_in, tx_out_count, tx_out, lock_time);
 	}
 
-	public TxMessagePayload(ByteBuffer b) throws ToManyEntriesException {
-		transaction = new Tx(b);
+	public TxMessagePayload(LittleEndianDataInputStream input) throws ToManyEntriesException, IOException {
+		transaction = new Tx(input);
 	}
 
 	// Produce raw version of message payload

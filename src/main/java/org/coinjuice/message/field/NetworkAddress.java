@@ -2,10 +2,21 @@ package org.coinjuice.message.field;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.io.IOException;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
+import org.coinjuice.Util;
 import org.coinjuice.message.field.Services;
 import org.coinjuice.exception.VersionIncompatibleActionException;
 
+/** \class NetworkAddress
+*
+* \brief Network address field used in multiple payloads. 
+*
+* Payload for Addr messages contains a list of timestamps and network addresses. Describe the version split at 31402
+*
+*/
 public class NetworkAddress {
 
 	// uint32	 the Time (version >= 31402)
@@ -24,7 +35,7 @@ public class NetworkAddress {
 	private short port;
 
 	// Identifies protocol version being used by the node, gives
-	// raw() function different behaviour.
+	// raw() function different behavior.
 	private int version;
 
 	public NetworkAddress(int version, Services services, char[] IPv6, short port) throws VersionIncompatibleActionException {
@@ -37,7 +48,6 @@ public class NetworkAddress {
 		this.services = services;
 		this.IPv6 = IPv6;
 		this.port = port;
-		
 	}
 
 	public NetworkAddress(int version, int time, Services services, char[] IPv6, short port) throws VersionIncompatibleActionException {
@@ -51,31 +61,25 @@ public class NetworkAddress {
 		this.services = services;
 		this.IPv6 = IPv6;
 		this.port = port;
-
 	}
 
-	public NetworkAddress(int version, ByteBuffer b) {
+	public NetworkAddress(int version, LittleEndianDataInputStream input) throws IOException {
 
 		// Save version
 		this.version = version;
 
 		// Load time field if the version number is high enough
 		if(version >= VERSION_SPLIT_NR)
-			time = b.getInt();
+			time = input.readInt();
 
 		// Services
-		services = new Services(b);
+		services = new Services(input);
 
 		// IPv6/4 field
-		IPv6 = new char[16]; // allocate buffer
-		b.asCharBuffer().get(IPv6); // read into buffer through view
-		b.position(b.position() + 16); // advance original buffer position
+		IPv6 = Util.readChar(input, 16);
 
 		// Port field, in big endian
-		b.order(ByteOrder.BIG_ENDIAN);
-		port = b.getShort();
-		b.order(ByteOrder.LITTLE_ENDIAN);
-
+		port = Util.swapEndian(input.readShort()); // read as small endian, so we must transform
 	}
 
 	public ByteBuffer raw() {
@@ -91,8 +95,7 @@ public class NetworkAddress {
 		b.put(services.raw());
 		
 		// IPv6/4
-		b.asCharBuffer().put(this.IPv6); // write address
-		b.position(b.position() + 16); // advance original buffer position
+		Util.writeChar(b, this.IPv6);
 
 		//  Port field in big endian
 		b.order(ByteOrder.BIG_ENDIAN).putShort(this.port).order(ByteOrder.LITTLE_ENDIAN);
@@ -100,7 +103,7 @@ public class NetworkAddress {
 		// Return rewinded buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
 
 	}
@@ -116,5 +119,4 @@ public class NetworkAddress {
 	public int rawLength() {
 		return rawLength(version);
 	}
-	
 }

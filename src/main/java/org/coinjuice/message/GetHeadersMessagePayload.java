@@ -1,11 +1,21 @@
 package org.coinjuice.message;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.coinjuice.message.field.Tx;
-import org.coinjuice.message.field.VariableLengthInteger;
+import com.google.common.io.LittleEndianDataInputStream;
 
+import org.coinjuice.message.field.VariableLengthInteger;
+import org.coinjuice.Util;
+
+/** \class GetHeadersMessagePayload
+*
+* \brief Payload for GetHeaders message
+*
+* Briefly the message and the methods on the message
+*
+*/
 public class GetHeadersMessagePayload extends MessagePayload {
 
 	// The protocol version
@@ -26,30 +36,18 @@ public class GetHeadersMessagePayload extends MessagePayload {
 	// Constructor
 	public GetHeadersMessagePayload(int version, VariableLengthInteger hash_count, char[] block_locator_hashes, char[] hash_stop) {
 
-		// Set payload fields
 		this.version = version;
 		this.hash_count = hash_count;
 		this.block_locator_hashes = block_locator_hashes;
 		this.hash_stop = hash_stop;
 	}
 
-	public GetHeadersMessagePayload(ByteBuffer b) {
+	public GetHeadersMessagePayload(LittleEndianDataInputStream input) throws IOException {
 
-		// version
-		version = b.getInt();
-
-		// hash_count
-		hash_count = new VariableLengthInteger(b);
-
-		// block_locator_hashes
-		block_locator_hashes  = new char[32];		// Allocate buffer
-		b.asCharBuffer().get(block_locator_hashes);	// Add through char view
-		b.position(b.position() + 32);				// Advance buffer position
-
-		// hash_stop
-		hash_stop  = new char[32];			// Allocate buffer
-		b.asCharBuffer().get(hash_stop);	// Read through char view
-		b.position(b.position() + 32);		// Advance buffer position
+		version = input.readInt();
+		hash_count = new VariableLengthInteger(input);
+		block_locator_hashes = Util.readChar(input, 32);
+		hash_stop = Util.readChar(input, 32);
 	}
 
 	// Produce raw version of message payload
@@ -61,12 +59,8 @@ public class GetHeadersMessagePayload extends MessagePayload {
 		// Populate buffer
 		b.putInt(version);
 		b.put(hash_count.raw());
-
-		b.asCharBuffer().put(block_locator_hashes); // Write through char view
-		b.position(b.position() + 32);			// Advance buffer position
-
-		b.asCharBuffer().put(hash_stop);	 // Write through char view
-		b.position(b.position() + 32);			// Advance buffer position
+		Util.writeChar(b, block_locator_hashes);
+		Util.writeChar(b, hash_stop);
 
 		// Rewind buffer
 		b.rewind();
@@ -78,5 +72,4 @@ public class GetHeadersMessagePayload extends MessagePayload {
 	public int rawLength() {
 		return 4 + hash_count.rawLength() + 32 + 32;
 	}
-
 }

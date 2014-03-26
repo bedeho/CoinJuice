@@ -1,15 +1,22 @@
 package org.coinjuice.message;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.Services;
 import org.coinjuice.message.field.NetworkAddress;
 import org.coinjuice.message.field.VariableLengthString;
-
 import org.coinjuice.exception.IncorrectVersionNumberForVersionMessageException;
 
-
+/** \class VerackMessagePayload
+*
+* \brief Represents payload for verack message
+*
+* A more detailed class description...
+*
+*/
 public class VersionMessagePayload extends MessagePayload {
 
 	// Identifies protocol version being used by the node
@@ -94,37 +101,37 @@ public class VersionMessagePayload extends MessagePayload {
 		this.relay = relay;
 	}
 
-	public VersionMessagePayload(ByteBuffer b) {
+	public VersionMessagePayload(LittleEndianDataInputStream input) throws IOException {
 
 		// version
-		version = b.getInt();
+		version = input.readInt();
 
 		// services
-		services = new Services(b);
+		services = new Services(input);
 
 		// timestamp
-		timestamp = b.getLong();
+		timestamp = input.readLong();
 
 		// addr_recv
-		addr_recv = new NetworkAddress(version, b);
+		addr_recv = new NetworkAddress(version, input);
 
 		if(version >= VERSION_SPLIT_NR) {
 
 			// The network address of the node emitting this message
-			addr_from = new NetworkAddress(version, b);
+			addr_from = new NetworkAddress(version, input);
 
 			// Node random nonce, randomly generated every time a version packet is sent. This nonce is used to detect connections to self.
-			nonce = b.getLong();
+			nonce = input.readLong();
 
 			// User Agent (0x00 if string is 0 bytes long)
-			user_agent = new VariableLengthString(b);
+			user_agent = new VariableLengthString(input);
 
 			// The last block received by the emitting node
-			start_height = b.getInt();
+			start_height = input.readInt();
 
 			// Whether the remote peer should announce relayed transactions or not, see BIP 0037, since version >= 70001
 			if(version >= VERSION_SPLIT_NR_RELAY)
-				relay = (b.get() != 0);
+				relay = (input.read() != 0);
 		}
 	}
 
@@ -173,7 +180,5 @@ public class VersionMessagePayload extends MessagePayload {
 			return (4 + 8 + 8 + addr_recv.rawLength()) + (addr_from.rawLength() + 8 + user_agent.rawLength() + 4);
 		else // version >= VERSION_SPLIT_NR_RELAY
 			return (4 + 8 + 8 + addr_recv.rawLength()) + (addr_from.rawLength() + 8 + user_agent.rawLength() + 4) + 1;
-
 	}
-
 }

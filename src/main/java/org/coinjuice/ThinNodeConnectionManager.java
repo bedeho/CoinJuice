@@ -69,6 +69,8 @@ public class ThinNodeConnectionManager extends Thread {
         } catch (IOException e) {
             // - if an I/O error occurs when opening data stream
         } 
+        
+        // Add raw byte rader to the underlying stream, which buffers eveyrthing, so that later we can dump raw content from it.
 
         /*
         // Create version message

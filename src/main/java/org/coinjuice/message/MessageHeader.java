@@ -2,18 +2,23 @@ package org.coinjuice.message;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
-import com.google.common.io.LittleEndianDataOutputStream;
-
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
 import org.coinjuice.message.MessageType;
 import org.coinjuice.exception.UnknownMagicValueException;
-import org.coinjuice.exception.IncorrectPayloadLengthException;
 import org.coinjuice.exception.UnknownMessageTypeException;
+import org.coinjuice.Util;
 
+/** \class MessageHeader
+*
+* \brief Represents the header of messages
+*
+* A more detailed class description...
+*
+*/
 public class MessageHeader {
 
 	// Magic value indicating message origin network, and used to seek to next message when stream state is unknown
@@ -38,7 +43,6 @@ public class MessageHeader {
 		private final int value;
 
 		private Magic(int value) {
-
 			this.value = value;
 		}
 
@@ -53,7 +57,6 @@ public class MessageHeader {
                 	return m;
 
             throw new UnknownMagicValueException(val);
-
 		}
 	}
 
@@ -89,7 +92,7 @@ public class MessageHeader {
 		try {
 			command = MessageType.getMessageType(new String(commandBuffer, "UTF-8"));
 		} catch(UnsupportedEncodingException e) {
-			// cant happen, we are manually providing it
+			// can't happen, we are manually providing it
 		}
 
 		// length
@@ -108,14 +111,14 @@ public class MessageHeader {
 
 		// Populate with raw header
 		b.putInt(magic.getValue());
-		//b.put(MessageType.getGetMessageTypeEncoding(command));
+		Util.writeChar(b, command.getValue().toCharArray());
 		b.putInt(length);
 		b.put(checksum);
 
 		// Return rewinded buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
 	}
 

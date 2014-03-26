@@ -1,10 +1,22 @@
 package org.coinjuice.message;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
+import org.coinjuice.Util;
+
+/** \class GetBlocksMessagePayload
+*
+* \brief Payload for GetBlocks message
+*
+* Briefly the message and the methods on the message
+*
+*/
 public class GetBlocksMessagePayload extends MessagePayload {
 
 	// The protocol version
@@ -24,31 +36,19 @@ public class GetBlocksMessagePayload extends MessagePayload {
 
 	// Constructor
 	public GetBlocksMessagePayload(int version, VariableLengthInteger hash_count, char[] block_locator_hashes, char[] hash_stop)  { // Implement exceptions ones I actually understand this message
-
-		// Set payload fields
+		
 		this.version = version;
 		this.hash_count = hash_count;
 		this.block_locator_hashes = block_locator_hashes;
 		this.hash_stop = hash_stop;
 	}
 
-	public GetBlocksMessagePayload(ByteBuffer b) {
+	public GetBlocksMessagePayload(LittleEndianDataInputStream input) throws IOException {
 
-		// version
-		version = b.getInt();
-
-		// hash_count
-		hash_count = new VariableLengthInteger(b);
-
-		// block_locator_hashes
-		block_locator_hashes = new char[32]; 	// Allocate buffer
-		b.asCharBuffer().get(block_locator_hashes); // Add through char view
-		b.position(b.position() + 32); 				// Advance buffer position
-
-		// Hash of the last desired block; set to zero to get as many blocks as possible (500)
-		hash_stop  = new char[32]; 	  // Allocate buffer
-		b.asCharBuffer().get(hash_stop); // Add through char view
-		b.position(b.position() + 32); 		  // Advance buffer position
+		version = input.readInt();
+		hash_count = new VariableLengthInteger(input);
+		block_locator_hashes = Util.readChar(input, 32);
+		hash_stop = Util.readChar(input, 32); // Hash of the last desired block; set to zero to get as many blocks as possible (500)
 	}
 
 	// Produce raw version of message payload
@@ -60,12 +60,8 @@ public class GetBlocksMessagePayload extends MessagePayload {
 		// Populate buffer
 		b.putInt(version);
 		b.put(hash_count.raw());
-
-		b.asCharBuffer().put(block_locator_hashes); // Write through view 
-		b.position(b.position() + block_locator_hashes.length); // Advance position underlying buffer
-
-		b.asCharBuffer().put(hash_stop); 			// Write through view 
-		b.position(b.position() + hash_stop.length); // Advance position underlying buffer
+		Util.writeChar(b, block_locator_hashes);
+		Util.writeChar(b, hash_stop);
 
 		// Rewind buffer
 		b.rewind();
@@ -78,5 +74,4 @@ public class GetBlocksMessagePayload extends MessagePayload {
 	public int rawLength() {
 		return 4 + hash_count.rawLength() + 32 + 32;
 	}
-
 }

@@ -1,10 +1,14 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.exception.IncorrectScriptLengthException;
+import org.coinjuice.Util;
 
 public class TxOut {
 
@@ -14,7 +18,7 @@ public class TxOut {
 	// Length of the pk_script
 	private VariableLengthInteger pk_script_length;
 
-	// Usually contains the public key as a Bitcoin script setting up conditions to claim this output.
+	// Usually contains the public key as a BitCoin script setting up conditions to claim this output.
 	private char[] pk_script;
 
 	// Constructor
@@ -25,25 +29,22 @@ public class TxOut {
 		this.pk_script = pk_script;
 
 		// Check that count matches inventory vector
-		if(pk_script_length.value != pk_script.length)
-			throw new IncorrectScriptLengthException(pk_script_length.value, pk_script.length);
+		if(pk_script_length.getValue() != pk_script.length)
+			throw new IncorrectScriptLengthException(pk_script_length.getValue(), pk_script.length);
 
 		// Do we need to validate the script some how? 
 	}
 
-	public TxOut(ByteBuffer b) {
+	public TxOut(LittleEndianDataInputStream input) throws IOException {
 
 		// outpoint
-		value = b.getLong();
+		value = input.readLong();
 
 		// pk_script
-		pk_script_length = new VariableLengthInteger(b);
+		pk_script_length = new VariableLengthInteger(input);
 
 		// pk_script
-		pk_script = new char[(int)pk_script_length.value];
-		b.asCharBuffer().get(pk_script); // Read through char view
-		b.position(b.position() + (int)pk_script_length.value); // Advance position in byte buffer
-
+		pk_script = Util.readChar(input, pk_script_length.getValue());
 	}
 
 	// Produce raw version of message payload
@@ -55,21 +56,17 @@ public class TxOut {
 		// Populate buffer
 		b.putLong(value);
 		b.put(pk_script_length.raw());
-
-		b.asCharBuffer().put(pk_script); // Write to buffer through view
-		b.position(b.position() + pk_script.length); // Advance underlying buffer position
+		Util.writeChar(b, pk_script);
 
 		// Rewind buffer
 		b.rewind();
 
 		// Return buffer
 		return b;
-
 	}
 
 	// Size of raw byte stream of field
 	public int rawLength() {
-		return 8 + pk_script_length.rawLength() + (int)pk_script_length.value*1;
+		return 8 + pk_script_length.rawLength() + pk_script_length.getValue()*1;
 	}
-
 }

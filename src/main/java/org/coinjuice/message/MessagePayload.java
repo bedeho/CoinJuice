@@ -5,6 +5,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+/** \class MessagePayload
+*
+* \brief Represents the payload of messages
+*
+* A more detailed class description...
+*
+*/
 public abstract class MessagePayload {
 
 	// Computes raw payload from fields

@@ -1,12 +1,16 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.coinjuice.exception.IncorrectLengthOfHashObjectException;
 import org.coinjuice.exception.UnknownObjectTypeException;
+import org.coinjuice.Util;
 
-// Is called InventoryVector by bitcoin spesification and also standard client,
+import com.google.common.io.LittleEndianDataInputStream;
+
+// Is called InventoryVector by BitCoin specification and also standard client,
 // but this name is more appropriate
 
 public class InventoryItem {
@@ -58,19 +62,15 @@ public class InventoryItem {
 
 		this.type = type;
 		this.hash = hash;
-
 	}
 
-	public InventoryItem(ByteBuffer b) throws UnknownObjectTypeException {
+	public InventoryItem(LittleEndianDataInputStream input) throws UnknownObjectTypeException, IOException {
 
 		// Type field
-		type = ObjectType.getObjectType(b.getInt());
+		type = ObjectType.getObjectType(input.readInt());
 
 		// Hash field
-		hash = new char[32]; // Allocate buffer space
-		b.asCharBuffer().get(hash); // Read from char buffer
-		b.position(b.position() + 32); // Advance position in byte buffer
-
+		hash = Util.readChar(input, 32);
 	}
 
 	public ByteBuffer raw() {
@@ -80,7 +80,7 @@ public class InventoryItem {
 
 		// Populate
 		b.putInt(type.getValue());
-		b.asCharBuffer().put(hash); // rembemr to manually advance position on b if you want to add more stuff to b from hereonin
+		Util.writeChar(b, hash);
 
 		// Rewind buffer
 		b.rewind();

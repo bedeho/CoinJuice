@@ -1,21 +1,18 @@
 package org.coinjuice.message.field;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.message.field.Tx;
-
 import org.coinjuice.exception.IncorrectPreviousBlockHashLengthException;
 import org.coinjuice.exception.IncorrectMerkleRootLengthException;
 import org.coinjuice.exception.IncorrectNumberOfTransactionsException;
 import org.coinjuice.exception.ToManyEntriesException;
-/*
-import org.coinjuice.exception.IncorrectChecksumException;
-import org.coinjuice.exception.IncorrectPayloadLengthException;
-import org.coinjuice.exception.IncorrectCommandException;
-import org.coinjuice.exception.UnknownMagicValueException;
-*/
+import org.coinjuice.Util;
 
 public class Block {
 
@@ -40,7 +37,7 @@ public class Block {
 	// Number of transaction entries
 	private VariableLengthInteger txn_count;
 
-	// Block transactions, in format of "tx" command
+	// Block transactions, in format of tx command
 	private Tx[] txns;
 
 	// Constructors
@@ -65,44 +62,39 @@ public class Block {
 			throw new IncorrectMerkleRootLengthException(merkle_root.length);
 
 		// Check if the stated number of transactions matches the actual number of transactions
-		if(txn_count.value == txns.length)
-			throw new IncorrectNumberOfTransactionsException(txn_count.value);
+		if(txn_count.getValue() == txns.length)
+			throw new IncorrectNumberOfTransactionsException(txn_count.getValue());
 
 	}
 
-	public Block(ByteBuffer b) throws ToManyEntriesException {
+	public Block(LittleEndianDataInputStream input) throws ToManyEntriesException, IOException {
 
 		// version
-		version = b.getInt();
+		version = input.readInt();
 
 		// prev_block
-		prev_block = new char [32];
-		b.asCharBuffer().get(prev_block);
-		b.position(b.position() + 32);
+		prev_block = Util.readChar(input, 32);
 
 		// merkle_root
-		merkle_root = new char [32];
-		b.asCharBuffer().get(merkle_root);
-		b.position(b.position() + 32); 
+		merkle_root = Util.readChar(input, 32);
 
 		// timestamp
-		timestamp = b.getInt();
+		timestamp = input.readInt();
 
 		// bits
-		bits = b.getInt();
+		bits = input.readInt();
 
 		// nonce
-		nonce = b.getInt();
+		nonce = input.readInt();
 
 		// txn_count
-		txn_count = new VariableLengthInteger(b);
+		txn_count = new VariableLengthInteger(input);
 
 		// Check that txn_count > 0 ?
 
 		// txns
-		for(int i = 0;i < txn_count.value;i++)
-			txns[i] = new Tx(b);
-
+		for(int i = 0;i < txn_count.getValue();i++)
+			txns[i] = new Tx(input);
 	}
 
 	// Produce raw version of message payload
@@ -113,24 +105,19 @@ public class Block {
 
 		// Populate
 		b.putInt(version);
-
-		b.asCharBuffer().put(prev_block);
-		b.position(b.position() + prev_block.length);
-
-		b.asCharBuffer().put(merkle_root);
-		b.position(b.position() + merkle_root.length);
-
+		Util.writeChar(b, prev_block);
+		Util.writeChar(b, merkle_root);
 		b.putInt(timestamp);
 		b.putInt(nonce);
 		b.put(txn_count.raw());
 
-		for(int i = 0;i < txn_count.value;i++)
+		for(int i = 0;i < txn_count.getValue();i++)
 			b.put(txns[i].raw());
 
 		// Return rewinded buffer
 		b.rewind();
 
-		// Return bufffer
+		// Return buffer
 		return b;
 	}
 
@@ -138,11 +125,9 @@ public class Block {
 
 		int length = 4 + 32 + 32 + 4 + 4 + txn_count.rawLength();
 
-		for(int i = 0;i < txn_count.value;i++)
+		for(int i = 0;i < txn_count.getValue();i++)
 			length += txns[i].rawLength();
 
 		return length;
-
 	}
-
 }

@@ -1,8 +1,10 @@
 package org.coinjuice;
 
+/*
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.HashMap;
+*/
 
 /*
 	General protocl rules: https://en.bitcoin.it/wiki/Protocol_rules
@@ -36,7 +38,7 @@ public class FullNode {
 	// Type of node instantiated
 	private NodeMode mode;
 
-	// List of peern nodes
+	// List of peer nodes
 	private ArrayList<String> nodeList;
 
 	// Constructors

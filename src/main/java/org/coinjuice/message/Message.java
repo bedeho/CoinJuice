@@ -1,20 +1,29 @@
 package org.coinjuice.message;
 
-import com.google.common.io.LittleEndianDataInputStream;
-import com.google.common.io.LittleEndianDataOutputStream;
 
 import java.io.IOException;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
 import java.util.Arrays;
+
+import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.exception.UnknownMagicValueException;
 import org.coinjuice.exception.UnknownMessageTypeException;
 import org.coinjuice.exception.IncorrectPayloadLengthException;
 import org.coinjuice.exception.IncorrectChecksumException;
+import org.coinjuice.exception.UnImplemenetedMessageException;
 
+// Import all payloads
+//import org.coinjuice.message.*;
+
+/** \class Message
+*
+* \brief Represents the header and payload of a message
+*
+* A more detailed class description...
+*
+*/
 public class Message {
 
 	// Message components
@@ -32,61 +41,51 @@ public class Message {
 		validateChecksumAndLengthFields();
 	}
 
-	public Message(LittleEndianDataInputStream input) throws UnknownMagicValueException, UnknownMessageTypeException, IncorrectChecksumException, IncorrectPayloadLengthException, IOException {
+	public Message(LittleEndianDataInputStream input) throws UnknownMagicValueException, UnknownMessageTypeException, IncorrectChecksumException, IncorrectPayloadLengthException, IOException, UnImplemenetedMessageException {
 
 		// Load header
 		header = new MessageHeader(input);
 
 		// Load payload
-		payload = createMessagePayload(input, header.command) new MessagePayload(input);
-
-		
-
-		// Add check that packet actually has the size it claims?
-		//if(b.remaining() != length)
-		//	throw new IncorrectPayloadLengthException(b.remaining(), length);
-
-		
+		payload = createMessagePayload(input, header.command);
 
 		// Check that header checksum and length fields match payload
 		validateChecksumAndLengthFields();
-
-		
 	}
 
-	public static MessagePayload createMessagePayload(LittleEndianDataInputStream input, MessageType type) {
+	public static MessagePayload createMessagePayload(LittleEndianDataInputStream input, MessageType type) throws UnImplemenetedMessageException {
 		
 		MessagePayload p;
 		
         switch(type) {
 
-            case VERSION: break;
-            case VERACK: break;
-            case ADDR: break;
-            case INV: break;
-            case GETDATA: break;
-            case NOTFOUND: break;
-            case GETBLOCKS: break;
-            case GETHEADERS: break;
-            case TX: break;
-            case BLOCK: break;
-            case HEADERS: break;
-            case GETADDR: break;
-            case MEMPOOL: break;
-            case CHECKORDER: break;
-            case SUBMITORDER: break;
-            case REPLY: break;
-            case PING: break;
-            case PONG: break;
-            case FILTERLOAD: break;
-            case FILTERADD: break;
-            case FILTERCLEAR: break;
-            case MERKLEBLOCK: break;
-            case ALERT: break;
+            case VERSION: p = new VersionMessagePayload(input); break;
+            case VERACK: p = new VerackMessagePayload(input); break;
+            case ADDR: p = new AddrkMessagePayload(input); break;
+            case INV: p = new InvMessagePayload(input); break;
+            case GETDATA: p = new GetDataMessagePayload(input); break;
+            case NOTFOUND: p = new NotFoundMessagePayload(input); break;
+            case GETBLOCKS: p = new GetBlocksMessagePayload(input); break;
+            case GETHEADERS: p = new GetHeadersMessagePayload(input); break;
+            case TX: p = new TxMessagePayload(input); break;
+            case BLOCK: p = new BlockMessagePayload(input); break;
+            case HEADERS: p = new HeadersMessagePayload(input); break;
+            case GETADDR: p = new GetaddrMessagePayload(input); break;
+            case MEMPOOL: throw new UnImplemenetedMessageException(type); break;
+            case CHECKORDER: throw new UnImplemenetedMessageException(type); break;
+            case SUBMITORDER: throw new UnImplemenetedMessageException(type); break;
+            case REPLY: throw new UnImplemenetedMessageException(type); break;
+            case PING: p = new PingMessagePayload(input); break;
+            case PONG: p = new PongMessagePayload(input); break;
+            case FILTERLOAD: throw new UnImplemenetedMessageException(type); break;
+            case FILTERADD: throw new UnImplemenetedMessageException(type); break;
+            case FILTERCLEAR: throw new UnImplemenetedMessageException(type); break;
+            case MERKLEBLOCK: throw new UnImplemenetedMessageException(type); break;
+            case ALERT: throw new UnImplemenetedMessageException(type); break;
+            
+            default: // Unrecognized message, must be due to MessageType expansion, but not implemented as case in this switch.
+            	throw new UnImplemenetedMessageException(type);
         }
-        
-        // Return payload
-        return p;
 	}
 
 	// Check that present checksum and length fields match payload
@@ -132,7 +131,7 @@ public class Message {
 
 	// Total raw length of message
 	public int rawLength() {
-		return header.rawLength() + payload.rawLength();
+		return MessageHeader.rawLength() + payload.rawLength();
 	}
 
 	// Get message header
