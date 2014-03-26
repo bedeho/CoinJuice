@@ -37,7 +37,6 @@ public class Message {
 		// Load header
 		header = new MessageHeader(input);
 
-		/*
 		// Load payload
 		payload = createMessagePayload(input, header.command) new MessagePayload(input);
 
@@ -52,16 +51,43 @@ public class Message {
 		// Check that header checksum and length fields match payload
 		validateChecksumAndLengthFields();
 
-		*/
+		
 	}
 
-	// 
-	/*
-	public static MessagePayload createMessagePayload(DataInputStream input, MessageType type) {
+	public static MessagePayload createMessagePayload(LittleEndianDataInputStream input, MessageType type) {
+		
+		MessagePayload p;
+		
+        switch(type) {
 
-
+            case VERSION: break;
+            case VERACK: break;
+            case ADDR: break;
+            case INV: break;
+            case GETDATA: break;
+            case NOTFOUND: break;
+            case GETBLOCKS: break;
+            case GETHEADERS: break;
+            case TX: break;
+            case BLOCK: break;
+            case HEADERS: break;
+            case GETADDR: break;
+            case MEMPOOL: break;
+            case CHECKORDER: break;
+            case SUBMITORDER: break;
+            case REPLY: break;
+            case PING: break;
+            case PONG: break;
+            case FILTERLOAD: break;
+            case FILTERADD: break;
+            case FILTERCLEAR: break;
+            case MERKLEBLOCK: break;
+            case ALERT: break;
+        }
+        
+        // Return payload
+        return p;
 	}
-	*/
 
 	// Check that present checksum and length fields match payload
 	protected void validateChecksumAndLengthFields() throws IncorrectChecksumException, IncorrectPayloadLengthException {

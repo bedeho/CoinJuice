@@ -18,4 +18,19 @@
   		<version>16.0.1</version>
   	</dependency>
   </dependencies>
+
+<reporting> <!-- (or <build>) -->
+    <plugins>
+      <plugin>
+        <groupId>com.pcl-solutions.maven.reports</groupId>
+        <artifactId>doxygen-maven-report</artifactId>
+        <version>${project.version}</version>
+        <configuration>
+          <options>
+            <!-- Doxygen options in the format <OPTION>VALUE</OPTION> -->
+          </options>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting> <!-- (or </build>) -->
 </project>

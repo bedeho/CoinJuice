@@ -40,7 +40,6 @@ public class ThinNodeConnectionManager extends Thread {
 
     // Processing state of connection
 
-
 	// Constructors
 	ThinNodeConnectionManager(ThinNode node, InetSocketAddress peer, int version) {
 
