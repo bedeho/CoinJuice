@@ -2,23 +2,18 @@ package org.coinjuice;
 
 import java.net.Socket;
 import java.net.InetSocketAddress;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-
 import java.io.IOException;
 
 import org.coinjuice.ThinNode;
 import org.coinjuice.message.Message;
-
 import org.coinjuice.message.MessageType;
-
-/*
+import org.coinjuice.message.VersionMessagePayload;
 import org.coinjuice.message.MessageHeader;
 import org.coinjuice.message.MessagePayload;
 import org.coinjuice.message.field.Services;
 import org.coinjuice.message.field.NetworkAddress;
-*/
 
 public class ThinNodeConnectionManager extends Thread {
 
@@ -72,9 +67,9 @@ public class ThinNodeConnectionManager extends Thread {
         
         // Add raw byte rader to the underlying stream, which buffers eveyrthing, so that later we can dump raw content from it.
 
-        /*
+        
         // Create version message
-        VersionMessagePayload p = new MessagePayload(version, new Services(), timestamp, new NetworkAddress()); 
+        VersionMessagePayload p = new VersionMessagePayload(version, new Services(), timestamp, new NetworkAddress()); 
         MessageHeader h = new MessageHeader(MAIN, VERSION, p.rawLength(), p.getChecksumField());
         Message versionMessage = new Message(h,p);
 
@@ -84,13 +79,16 @@ public class ThinNodeConnectionManager extends Thread {
         // Message processing loop
         while(true) { // <-- how to stop thread in good way
 
+        	try {
             // Read message
             Message m = new Message(input);
-
+        	} catch () {
+        		processError();
+        	}
+        	
             // Process message
             processMessage(m);
         }
-        */
 	}
 
     // Processing logic
@@ -126,10 +124,13 @@ public class ThinNodeConnectionManager extends Thread {
             case ALERT: break;
         }
     }
+    
+    private void processError() {
+    	
+    }
 
 	// End connection: Not perfectly thread safe, but it doesnt matter
 	public void endConnection() {
         // read this on stopping thread: http://docs.oracle.com/javase/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html
 	}
-
 }

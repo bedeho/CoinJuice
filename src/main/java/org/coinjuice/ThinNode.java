@@ -37,7 +37,7 @@ public class ThinNode {
 		this.peers = peers;
 	}
 
-	// Join bitcoin network
+	// Join BitCoin network
 	void joinNetwork() {
 
 		// Create array list for connection managers
@@ -72,6 +72,11 @@ public class ThinNode {
 		blockchain.clear();
 		unspentTransactions.clear();
 		unconfirmedTransactions.clear();
+	}
+	
+	// Connection managers deposit errors here
+	void error() {
+		
 	}
 
 	// Send money you control

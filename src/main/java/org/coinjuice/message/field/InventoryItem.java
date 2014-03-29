@@ -20,15 +20,17 @@ public class InventoryItem {
 
 	public enum ObjectType {
 
-		// VALUE 	NAME		DESCRIPTION
+		// VALUE 	NAME				DESCRIPTION
 		// ----------------------------------------
-		// 0	 	ERROR	 	Any data of with this number may be ignored
-		// 1	 	MSG_TX	 	Hash is related to a transaction
- 		// 2	 	MSG_BLOCK	Hash is related to a data block
-
-		ERROR(1),
-		MSG_TX(2), 
-		MSG_BLOCK(3); 
+		// 0	 	ERROR 				Any data of with this number may be ignored
+		// 1	 	MSG_TX 				Hash is related to a transaction
+ 		// 2	 	MSG_BLOCK			Hash is related to a data block
+		// 3 		MSG_FILTERED_BLOCK	A Bloom filtered block, see https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki#extensions-to-existing-messages
+		
+		ERROR(0),
+		MSG_TX(1), 
+		MSG_BLOCK(2),
+		MSG_FILTERED_BLOCK(3); 
 
 		private final int value;
 
