@@ -75,17 +75,17 @@ public class Message {
             case BLOCK: p = new BlockMessagePayload(input); break;
             case HEADERS: p = new HeadersMessagePayload(input); break;
             case GETADDR: p = new EmptyMessagePayload(); break;
-            case MEMPOOL: throw new UnImplemenetedMessageException(type); break;
-            case CHECKORDER: throw new UnImplemenetedMessageException(type); break;
-            case SUBMITORDER: throw new UnImplemenetedMessageException(type); break;
-            case REPLY: throw new UnImplemenetedMessageException(type); break;
+            case MEMPOOL: throw new UnImplemenetedMessageException(type);
+            case CHECKORDER: throw new UnImplemenetedMessageException(type);
+            case SUBMITORDER: throw new UnImplemenetedMessageException(type);
+            case REPLY: throw new UnImplemenetedMessageException(type);
             case PING: p = new PingMessagePayload(input); break;
             case PONG: p = new PongMessagePayload(input); break;
-            case FILTERLOAD: throw new UnImplemenetedMessageException(type); break;
-            case FILTERADD: throw new UnImplemenetedMessageException(type); break;
-            case FILTERCLEAR: throw new UnImplemenetedMessageException(type); break;
-            case MERKLEBLOCK: throw new UnImplemenetedMessageException(type); break;
-            case ALERT: throw new UnImplemenetedMessageException(type); break;
+            case FILTERLOAD: throw new UnImplemenetedMessageException(type);
+            case FILTERADD: throw new UnImplemenetedMessageException(type);
+            case FILTERCLEAR: p = new EmptyMessagePayload(); break;
+            case MERKLEBLOCK: p = new MerkleBlockMessagePayload(type);
+            case ALERT: throw new UnImplemenetedMessageException(type);
             
             default: // Unrecognized message, must be due to MessageType expansion, but not implemented as case in this switch.
             	throw new UnImplemenetedMessageException(type);

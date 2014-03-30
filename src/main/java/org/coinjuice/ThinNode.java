@@ -24,8 +24,13 @@ public class ThinNode {
 	private HashMap<String, Tx> unspentTransactions;
 
 	// Transactions this node is aware of which are not part of block chain it is aware of
+	// use this as mempool
 	private HashMap<String, Tx> unconfirmedTransactions;
 
+	// relay set: messages recently inved by this node?
+	
+	// both mempool and relay set must be
+	
 	// List of peern nodes
 	private ArrayList<InetSocketAddress> peers;
 

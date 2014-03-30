@@ -25,6 +25,8 @@ public class ThinNodeConnectionManager extends Thread {
 
     // Socket used for this connection
     private Socket connection;
+    
+    // relay set of peer?
 
     // Version of protocol to be used
     private int version;

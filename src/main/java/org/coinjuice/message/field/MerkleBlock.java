@@ -34,11 +34,30 @@ public class MerkleBlock {
 	// The nonce used to generate this block‚Ä¶ to allow variations of the header and compute different hashes
 	private int nonce;
 
-	// Number of transaction entries
-	private VariableLengthInteger txn_count;
+	
+	
+	
+	// Number of transactions in the block (including unmatched ones)
+	private int total_transactions;
 
-	// Block transactions, in format of tx command
-	private Tx[] txns;
+	// hashes in depth-first order (including standard varint size prefix)
+	private hashes 
+	
+	// flag bits, packed per 8 in a byte, least significant bit first (including standard varint size prefix)
+	private byte [] flags;
+	
+	/*
+	4	 version	 uint32_t	 Block version information, based upon the software version creating this block
+	32	 prev_block	 char[32]	 The hash value of the previous block this particular block references
+	32	 merkle_root	 char[32]	 The reference to a Merkle tree collection which is a hash of all transactions related to this block
+	4	 timestamp	 uint32_t	 A timestamp recording when this block was created (Limited to 2106!)
+	4	 bits	 uint32_t	 The calculated difficulty target being used for this block
+	4	 nonce	 uint32_t	 The nonce used to generate this block… to allow variations of the header and compute different hashes
+	
+	4	 	 uint32_t	 
+	?	 hashes	 uint256[]	 
+	?	 flags	 byte[]	 
+	*/
 
 	// Constructors
 	public MerkleBlock(int version, char[] prev_block, char [] merkle_root, int timestamp, int bits, int nonce, VariableLengthInteger txn_count, Tx[] txns)  throws IncorrectPreviousBlockHashLengthException, IncorrectMerkleRootLengthException, IncorrectNumberOfTransactionsException {

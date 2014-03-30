@@ -25,7 +25,7 @@ public class MerkleBlockMessagePayload extends MessagePayload {
 
 	// Block payload
 	private MerkleBlock merkleblock;
-
+	
 	// Constructors
 	public MerkleBlockMessagePayload(int version, char[] prev_block, char [] merkle_root, int timestamp, int bits, int nonce, VariableLengthInteger txn_count, Tx[] txns)  throws IncorrectPreviousBlockHashLengthException, IncorrectMerkleRootLengthException, IncorrectNumberOfTransactionsException {
 		this.merkleblock = new MerkleBlock(version, prev_block, merkle_root, timestamp, bits, nonce, txn_count, txns);
