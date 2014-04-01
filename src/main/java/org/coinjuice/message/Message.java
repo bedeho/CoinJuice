@@ -49,6 +49,8 @@ public class Message {
 
 		// Load header
 		header = new MessageHeader(input);
+		
+		header.getLengthField()
 
 		// Load payload
 		payload = createMessagePayload(input, header.command);

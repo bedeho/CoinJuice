@@ -12,11 +12,6 @@ import org.coinjuice.ThinNodeConnectionManager;
 
 public class ThinNode {
 
-	// Node modes
-	//
-	// 		USE LEVEL DB IN THE FUTURE !!!
-	//
-
 	// Block chain presently accepted by this node
 	private LinkedHashMap<String, Block> blockchain;
 
