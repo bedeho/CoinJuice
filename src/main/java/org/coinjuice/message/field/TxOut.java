@@ -1,10 +1,7 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.exception.IncorrectScriptLengthException;
@@ -35,16 +32,17 @@ public class TxOut {
 		// Do we need to validate the script some how? 
 	}
 
-	public TxOut(LittleEndianDataInputStream input) throws IOException {
+	public TxOut(ByteBuffer b) {
 
 		// outpoint
-		value = input.readLong();
+		value = b.getLong();
 
 		// pk_script
-		pk_script_length = new VariableLengthInteger(input);
+		pk_script_length = new VariableLengthInteger(b);
 
 		// pk_script
-		pk_script = Util.readChar(input, pk_script_length.getValue());
+		pk_script = new char[pk_script_length.getValue()];
+		Util.readChar(b, pk_script);
 	}
 
 	// Produce raw version of message payload

@@ -2,9 +2,6 @@ package org.coinjuice.message.field;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.io.IOException;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.Util;
 import org.coinjuice.message.field.Services;
@@ -63,23 +60,25 @@ public class NetworkAddress {
 		this.port = port;
 	}
 
-	public NetworkAddress(int version, LittleEndianDataInputStream input) throws IOException {
+	public NetworkAddress(int version, ByteBuffer b) {
 
 		// Save version
 		this.version = version;
 
 		// Load time field if the version number is high enough
 		if(version >= VERSION_SPLIT_NR)
-			time = input.readInt();
+			time = b.getInt();
 
 		// Services
-		services = new Services(input);
+		services = new Services(b);
 
 		// IPv6/4 field
-		IPv6 = Util.readChar(input, 16);
+		IPv6 = new char[16];
+		Util.readChar(b, IPv6);
 
 		// Port field, in big endian
-		port = Util.swapEndian(input.readShort()); // read as small endian, so we must transform
+		port = Util.swapEndian(b.getShort()); // read as small endian, so we must transform
+		
 	}
 
 	public ByteBuffer raw() {

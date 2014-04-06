@@ -1,10 +1,7 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.message.field.Tx;
@@ -67,34 +64,36 @@ public class Block {
 
 	}
 
-	public Block(LittleEndianDataInputStream input) throws ToManyEntriesException, IOException {
+	public Block(ByteBuffer b) throws ToManyEntriesException {
 
 		// version
-		version = input.readInt();
+		version = b.getInt();
 
 		// prev_block
-		prev_block = Util.readChar(input, 32);
+		prev_block = new char[32];
+		Util.readChar(b, prev_block);
 
 		// merkle_root
-		merkle_root = Util.readChar(input, 32);
+		merkle_root = new char[32];
+		Util.readChar(b, merkle_root);
 
 		// timestamp
-		timestamp = input.readInt();
+		timestamp = b.getInt();
 
 		// bits
-		bits = input.readInt();
+		bits = b.getInt();
 
 		// nonce
-		nonce = input.readInt();
+		nonce = b.getInt();
 
 		// txn_count
-		txn_count = new VariableLengthInteger(input);
+		txn_count = new VariableLengthInteger(b);
 
 		// Check that txn_count > 0 ?
 
 		// txns
 		for(int i = 0;i < txn_count.getValue();i++)
-			txns[i] = new Tx(input);
+			txns[i] = new Tx(b);
 	}
 
 	// Produce raw version of message payload

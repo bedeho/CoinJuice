@@ -1,10 +1,7 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 //import org.coinjuice.exception.ToFewNumberOfTransactionsException;
@@ -52,28 +49,30 @@ public class BlockHeader {
 		*/
 	}
 
-	public BlockHeader(LittleEndianDataInputStream input) throws IOException { //  throws IncorrectNumberOfTransactionsException 
+	public BlockHeader(ByteBuffer b) { //  throws IncorrectNumberOfTransactionsException 
 
 		// Version field
-		version = input.readInt();
+		version = b.getInt();
 
 		// Previous block hash field
-		prev_block = Util.readChar(input, 32);
+		prev_block = new char[32];
+		Util.readChar(b, prev_block);
 
 		// Merkle tree hash
-		merkle_root = Util.readChar(input, 32);
+		merkle_root = new char[32];
+		Util.readChar(b, merkle_root);
 
 		// UNIX timestamp
-		timestamp = input.readInt();
+		timestamp = b.getInt();
 
 		// Difficulty of block
-		bits = input.readInt();
+		bits = b.getInt();
 
 		// Nonce of block
-		nonce = input.readInt();
+		nonce = b.getInt();
 
 		// Number of transaction entries
-		txn_count = new VariableLengthInteger(input);
+		txn_count = new VariableLengthInteger(b);
 
 		/*
 		// Confirm number of transaction entries count being 0

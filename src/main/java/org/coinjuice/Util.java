@@ -1,8 +1,7 @@
 package org.coinjuice;
 
 import java.nio.ByteBuffer;
-import java.io.IOException;
-import com.google.common.io.LittleEndianDataInputStream;
+
 
 /** \class Util
 *
@@ -22,16 +21,13 @@ public class Util {
 		return (short) ((b1 << 8) | (b2 >> 8)); // swap two bytes inside short
 	}
 	
-	static public char [] readChar(LittleEndianDataInputStream input, int numberOfChars) throws IOException {
-		
-		// Allocate buffer
-		byte [] tmp = new byte[numberOfChars];
+	static public void readChar(ByteBuffer b, char [] dst) {
 		
 		// Read bytes into buffer
-		input.read(tmp);
+		b.asCharBuffer().get(dst);
 		
-		// Wrap into a ByteBuffer, turn that into a CharBuffer, and return underlying array
-		return ByteBuffer.wrap(tmp).asCharBuffer().array();
+		// Advance position in underlying buffer
+		b.position(b.position() + dst.length);
 	}
 	
 	static public void writeChar(ByteBuffer b, char v []) {

@@ -1,10 +1,7 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.message.field.TxIn;
@@ -57,31 +54,31 @@ public class Tx {
 			throw new IncorrectNumberInputTransactionsException(tx_out_count.getValue(), tx_out.length);
 	}
 
-	public Tx(LittleEndianDataInputStream input) throws ToManyEntriesException, IOException {
+	public Tx(ByteBuffer b) throws ToManyEntriesException {
 
 		// version
-		version = input.readInt();
+		version = b.getInt();
 
 		// tx_in_count
-		tx_in_count = new VariableLengthInteger(input);
+		tx_in_count = new VariableLengthInteger(b);
 
 		// tx_in
 		tx_in = new TxIn[(int)tx_in_count.getValue()];
 
 		for(int i = 0;i < tx_in_count.getValue();i++)
-			tx_in[i] = new TxIn(input);
+			tx_in[i] = new TxIn(b);
 
 		// tx_out_count
-		tx_out_count = new VariableLengthInteger(input);
+		tx_out_count = new VariableLengthInteger(b);
 
 		// tx_out
 		tx_out = new TxOut[(int)tx_out_count.getValue()];
 
 		for(int i = 0;i < tx_out_count.getValue();i++)
-			tx_out[i] = new TxOut(input);
+			tx_out[i] = new TxOut(b);
 
 		// lock_time
-		lock_time = input.readInt();
+		lock_time = b.getInt();
 	}
 
 	// Produce raw version of message payload

@@ -82,8 +82,10 @@ public class ThinNodeConnectionManager extends Thread {
         while(true) { // <-- how to stop thread in good way
 
         	try {
-            // Read message
-            Message m = new Message(input);
+        		
+	            // Read message
+	            Message m = new Message(input);
+	            
         	} catch () {
         		processError();
         	}
@@ -131,7 +133,7 @@ public class ThinNodeConnectionManager extends Thread {
     	
     }
 
-	// End connection: Not perfectly thread safe, but it doesnt matter
+	// End connection: Not perfectly thread safe, but it doesn't matter
 	public void endConnection() {
         // read this on stopping thread: http://docs.oracle.com/javase/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html
 	}

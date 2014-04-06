@@ -86,34 +86,36 @@ public class MerkleBlock {
 
 	}
 
-	public MerkleBlock(LittleEndianDataInputStream input) throws ToManyEntriesException, IOException {
+	public MerkleBlock(ByteBuffer b) throws ToManyEntriesException, IOException {
 
 		// version
-		version = input.readInt();
+		version = b.getInt();
 
 		// prev_block
-		prev_block = Util.readChar(input, 32);
+		prev_block = new char[32];
+		Util.readChar(b, prev_block);
 
 		// merkle_root
-		merkle_root = Util.readChar(input, 32);
+		merkle_root = new char[32];
+		Util.readChar(b, merkle_root);
 
 		// timestamp
-		timestamp = input.readInt();
+		timestamp = b.getInt();
 
 		// bits
-		bits = input.readInt();
+		bits = b.getInt();
 
 		// nonce
-		nonce = input.readInt();
+		nonce = b.getInt();
 
 		// txn_count
-		txn_count = new VariableLengthInteger(input);
+		txn_count = new VariableLengthInteger(b);
 
 		// Check that txn_count > 0 ?
 
 		// txns
 		for(int i = 0;i < txn_count.getValue();i++)
-			txns[i] = new Tx(input);
+			txns[i] = new Tx(b);
 	}
 
 	// Produce raw version of message payload

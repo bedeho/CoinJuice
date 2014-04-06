@@ -1,10 +1,8 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 
@@ -19,16 +17,16 @@ public class VariableLengthString {
 	// hence this is a potential for a bug if someone sends a gigantic string
 	String s;
 
-	public VariableLengthString(LittleEndianDataInputStream input) throws IOException {
+	public VariableLengthString(ByteBuffer b) {
 
 		// Load length of string
-		length = new VariableLengthInteger(input);
+		length = new VariableLengthInteger(b);
 
 		// Allocate space for string
 		byte [] stringField = new byte[length.getValue()];
 
 		// Load string data into buffer
-		input.read(stringField);
+		b.get(stringField);
 
 		// Save string
 		s = new String(stringField);

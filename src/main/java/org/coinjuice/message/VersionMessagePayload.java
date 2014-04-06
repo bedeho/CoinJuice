@@ -1,9 +1,7 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.Services;
 import org.coinjuice.message.field.NetworkAddress;
@@ -101,37 +99,37 @@ public class VersionMessagePayload extends MessagePayload {
 		this.relay = relay;
 	}
 
-	public VersionMessagePayload(LittleEndianDataInputStream input) throws IOException {
+	public VersionMessagePayload(ByteBuffer b) {
 
 		// version
-		version = input.readInt();
+		version = b.getInt();
 
 		// services
-		services = new Services(input);
+		services = new Services(b);
 
 		// timestamp
-		timestamp = input.readLong();
+		timestamp = b.getLong();
 
 		// addr_recv
-		addr_recv = new NetworkAddress(version, input);
+		addr_recv = new NetworkAddress(version, b);
 
 		if(version >= VERSION_SPLIT_NR) {
 
 			// The network address of the node emitting this message
-			addr_from = new NetworkAddress(version, input);
+			addr_from = new NetworkAddress(version, b);
 
 			// Node random nonce, randomly generated every time a version packet is sent. This nonce is used to detect connections to self.
-			nonce = input.readLong();
+			nonce = b.getLong();
 
 			// User Agent (0x00 if string is 0 bytes long)
-			user_agent = new VariableLengthString(input);
+			user_agent = new VariableLengthString(b);
 
 			// The last block received by the emitting node
-			start_height = input.readInt();
+			start_height = b.getInt();
 
 			// Whether the remote peer should announce relayed transactions or not, see BIP 0037, since version >= 70001
 			if(version >= VERSION_SPLIT_NR_RELAY)
-				relay = (input.read() != 0);
+				relay = (b.get() != 0);
 		}
 	}
 

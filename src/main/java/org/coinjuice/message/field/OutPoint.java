@@ -1,10 +1,7 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.exception.IncorrectHashLengthException;
 import org.coinjuice.Util;
@@ -27,12 +24,14 @@ public class OutPoint {
 		this.index = index;
 	}
 
-	public OutPoint(LittleEndianDataInputStream input) throws IOException {
+	public OutPoint(ByteBuffer b) {
 
 		// hash
-		hash = Util.readChar(input, 32);
+		hash = new char[32];
+		Util.readChar(b, hash);
+		
 		// index
-		index = input.readInt();
+		index = b.getInt();
 	}
 
 	// Computes raw data from fields

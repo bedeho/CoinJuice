@@ -1,14 +1,11 @@
 package org.coinjuice.message.field;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.coinjuice.exception.IncorrectLengthOfHashObjectException;
 import org.coinjuice.exception.UnknownObjectTypeException;
 import org.coinjuice.Util;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 // Is called InventoryVector by BitCoin specification and also standard client,
 // but this name is more appropriate
@@ -66,13 +63,14 @@ public class InventoryItem {
 		this.hash = hash;
 	}
 
-	public InventoryItem(LittleEndianDataInputStream input) throws UnknownObjectTypeException, IOException {
+	public InventoryItem(ByteBuffer b) throws UnknownObjectTypeException {
 
 		// Type field
-		type = ObjectType.getObjectType(input.readInt());
+		type = ObjectType.getObjectType(b.getInt());
 
 		// Hash field
-		hash = Util.readChar(input, 32);
+		hash = new char[32];
+		Util.readChar(b, hash);
 	}
 
 	public ByteBuffer raw() {

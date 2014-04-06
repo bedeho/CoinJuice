@@ -1,11 +1,8 @@
 package org.coinjuice.message;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.MessageType;
 import org.coinjuice.exception.UnknownMagicValueException;
@@ -80,14 +77,14 @@ public class MessageHeader {
 		this.checksum = checksum;
 	}
 
-	public MessageHeader(LittleEndianDataInputStream input) throws UnknownMagicValueException, UnknownMessageTypeException, IOException {
+	public MessageHeader(ByteBuffer b) throws UnknownMagicValueException, UnknownMessageTypeException {
 
 		// magic
-		magic = Magic.getMagic(input.readInt());
+		magic = Magic.getMagic(b.getInt());
 
 		// command
 		byte [] commandBuffer = new byte[12];
-		input.read(commandBuffer);
+		b.get(commandBuffer);
 
 		try {
 			command = MessageType.getMessageType(new String(commandBuffer, "UTF-8"));
@@ -96,11 +93,11 @@ public class MessageHeader {
 		}
 
 		// length
-		length = input.readInt();
+		length = b.getInt();
 
 		// checksum
 		checksum = new byte[4];
-		input.read(checksum);
+		b.get(checksum);
 	}
 
 	// Computes raw byte stream for entire message

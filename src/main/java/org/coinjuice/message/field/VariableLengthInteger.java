@@ -2,9 +2,6 @@ package org.coinjuice.message.field;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.io.IOException;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 public class VariableLengthInteger {
 
@@ -31,31 +28,31 @@ public class VariableLengthInteger {
 	private final static byte PREFIX_FOUR_BYTE = -2;
 	private final static byte PREFIX_EIGHT_BYTE = -1;
 
-	public VariableLengthInteger(LittleEndianDataInputStream input) throws IOException {
+	public VariableLengthInteger(ByteBuffer b) {
 
-		byte firstByte = input.readByte();
+		byte firstByte = b.get();
 
 		if(firstByte == PREFIX_TWO_BYTE) {
 
 			size = 2;
-			value = input.readShort();
+			value = b.getShort();
 
 		} else if(firstByte == PREFIX_FOUR_BYTE) {
 
 			size = 4;
-			value = input.readInt();
+			value = b.getInt();
 
 		} else if(firstByte == PREFIX_EIGHT_BYTE) {
 
 			size = 8;
-			value = input.readLong();
+			value = b.getLong();
 
 		}
 		else {
 			
 			// ONE BYTE
 			size = 1;
-			value = input.readByte();
+			value = b.get();
 
 		}
 

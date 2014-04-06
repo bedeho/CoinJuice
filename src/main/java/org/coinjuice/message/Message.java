@@ -1,12 +1,11 @@
 package org.coinjuice.message;
 
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import com.google.common.io.LittleEndianDataInputStream;
+import java.io.DataInputStream;
 
 import org.coinjuice.exception.CountFieldToLargeException;
 import org.coinjuice.exception.IncorrectNumberOfTransactionsException;
@@ -45,44 +44,54 @@ public class Message {
 		validateChecksumAndLengthFields();
 	}
 
-	public Message(LittleEndianDataInputStream input) throws UnknownMagicValueException, UnknownMessageTypeException, IncorrectChecksumException, IncorrectPayloadLengthException, IOException, UnImplemenetedMessageException {
+	public Message(DataInputStream input) throws UnknownMagicValueException, UnknownMessageTypeException, IncorrectChecksumException, IncorrectPayloadLengthException, IOException, UnImplemenetedMessageException, CountFieldToLargeException, ToManyEntriesException, UnknownObjectTypeException, IncorrectNumberOfTransactionsException {
 
-		// Load header
-		header = new MessageHeader(input);
+		// Allocate space for header
+		ByteBuffer headerBuffer = ByteBuffer.allocate(MessageHeader.rawLength()).order(ByteOrder.LITTLE_ENDIAN);
 		
-		header.getLengthField()
-
+		// Fill buffer
+		input.read(headerBuffer.array());
+		
+		// Load header
+		header = new MessageHeader(headerBuffer);
+		
+		// Allocate space for payload
+		ByteBuffer payloadBuffer = ByteBuffer.allocate(header.getLengthField()).order(ByteOrder.LITTLE_ENDIAN);
+		
+		// Fill buffer
+		input.read(payloadBuffer.array());
+		
 		// Load payload
-		payload = createMessagePayload(input, header.command);
+		payload = createMessagePayload(payloadBuffer, header.command);
 
 		// Check that header checksum and length fields match payload
 		validateChecksumAndLengthFields();
 	}
 
-	public static MessagePayload createMessagePayload(LittleEndianDataInputStream input, MessageType type) throws UnImplemenetedMessageException, CountFieldToLargeException, IOException, ToManyEntriesException, UnknownObjectTypeException, IncorrectNumberOfTransactionsException {
+	public static MessagePayload createMessagePayload(ByteBuffer b, MessageType type) throws UnImplemenetedMessageException, CountFieldToLargeException, IOException, ToManyEntriesException, UnknownObjectTypeException, IncorrectNumberOfTransactionsException {
 		
 		MessagePayload p;
 		
         switch(type) {
 
-            case VERSION: p = new VersionMessagePayload(input); break;
+            case VERSION: p = new VersionMessagePayload(b); break;
             case VERACK: p = new EmptyMessagePayload(); break;
-            case ADDR: p = new AddrMessagePayload(input); break;
-            case INV: p = new InvMessagePayload(input); break;
-            case GETDATA: p = new GetDataMessagePayload(input); break;
-            case NOTFOUND: p = new NotFoundMessagePayload(input); break;
-            case GETBLOCKS: p = new GetBlocksMessagePayload(input); break;
-            case GETHEADERS: p = new GetHeadersMessagePayload(input); break;
-            case TX: p = new TxMessagePayload(input); break;
-            case BLOCK: p = new BlockMessagePayload(input); break;
-            case HEADERS: p = new HeadersMessagePayload(input); break;
+            case ADDR: p = new AddrMessagePayload(b); break;
+            case INV: p = new InvMessagePayload(b); break;
+            case GETDATA: p = new GetDataMessagePayload(b); break;
+            case NOTFOUND: p = new NotFoundMessagePayload(b); break;
+            case GETBLOCKS: p = new GetBlocksMessagePayload(b); break;
+            case GETHEADERS: p = new GetHeadersMessagePayload(b); break;
+            case TX: p = new TxMessagePayload(b); break;
+            case BLOCK: p = new BlockMessagePayload(b); break;
+            case HEADERS: p = new HeadersMessagePayload(b); break;
             case GETADDR: p = new EmptyMessagePayload(); break;
             case MEMPOOL: throw new UnImplemenetedMessageException(type);
             case CHECKORDER: throw new UnImplemenetedMessageException(type);
             case SUBMITORDER: throw new UnImplemenetedMessageException(type);
             case REPLY: throw new UnImplemenetedMessageException(type);
-            case PING: p = new PingMessagePayload(input); break;
-            case PONG: p = new PongMessagePayload(input); break;
+            case PING: p = new PingMessagePayload(b); break;
+            case PONG: p = new PongMessagePayload(b); break;
             case FILTERLOAD: throw new UnImplemenetedMessageException(type);
             case FILTERADD: throw new UnImplemenetedMessageException(type);
             case FILTERCLEAR: p = new EmptyMessagePayload(); break;
