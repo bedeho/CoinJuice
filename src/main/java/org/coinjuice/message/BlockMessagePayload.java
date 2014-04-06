@@ -1,10 +1,6 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
-
 import java.nio.ByteBuffer;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.Tx;
 import org.coinjuice.message.field.Block;
@@ -31,8 +27,8 @@ public class BlockMessagePayload extends MessagePayload {
 		this.block = new Block(version, prev_block, merkle_root, timestamp, bits, nonce, txn_count, txns);
 	}
 
-	public BlockMessagePayload(LittleEndianDataInputStream input) throws ToManyEntriesException, IOException {
-		block = new Block(input);
+	public BlockMessagePayload(ByteBuffer b) throws ToManyEntriesException {
+		block = new Block(b);
 	}
 
 	// Produce raw version of message payload

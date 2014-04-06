@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 *
 */
 public class EmptyMessagePayload extends MessagePayload {
+	
 	public ByteBuffer raw() {
 		return ByteBuffer.allocate(rawLength()).order(ByteOrder.LITTLE_ENDIAN);
 	}

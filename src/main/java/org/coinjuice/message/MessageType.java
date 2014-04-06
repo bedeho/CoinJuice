@@ -57,7 +57,7 @@ public enum MessageType {
         throw new UnknownMessageTypeException(command);
 	}
 
-/*
+	/*
 	// Get encoding of some enum instance :zero padding to 12 chars
 	public static String getGetMessageTypeEncoding(MessageType m) {
 		//return (m.getValue() + (new String(new char[12 - m.getValue().length()]))).toCharArray();

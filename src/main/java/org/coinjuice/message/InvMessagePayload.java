@@ -1,10 +1,7 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.message.field.InventoryItem;
@@ -45,10 +42,10 @@ public class InvMessagePayload extends MessagePayload {
 			new ToManyEntriesException(count.getValue());
 	}
 
-	public InvMessagePayload(LittleEndianDataInputStream input) throws ToManyEntriesException, UnknownObjectTypeException, IOException {
+	public InvMessagePayload(ByteBuffer b) throws ToManyEntriesException, UnknownObjectTypeException {
 
 		// count
-		count = new VariableLengthInteger(input);
+		count = new VariableLengthInteger(b);
 
 		// Check that this does not exceed maximum number of entries
 		if(count.getValue() > MAXIMUM_NUMBER_OF_ENTRIES)
@@ -56,7 +53,7 @@ public class InvMessagePayload extends MessagePayload {
 
 		// Load entries
 		for(int i = 0;i < count.getValue();i++)
-			inventory[i] = new InventoryItem(input);
+			inventory[i] = new InventoryItem(b);
 
 	}
 

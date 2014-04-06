@@ -1,10 +1,7 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.message.field.BlockHeader;
@@ -38,14 +35,14 @@ public class HeadersMessagePayload extends MessagePayload {
 			throw new IncorrectNumberOfBlockHeadersException(count.getValue(), block_header.length);
 	}
 
-	public HeadersMessagePayload(LittleEndianDataInputStream input) throws IncorrectNumberOfTransactionsException, IOException {
+	public HeadersMessagePayload(ByteBuffer b) throws IncorrectNumberOfTransactionsException {
 
 		// count
-		count = new VariableLengthInteger(input); 
+		count = new VariableLengthInteger(b); 
 
 		// block_header
 		for(int i = 0;i < count.getValue();i++)
-			block_header[i] = new BlockHeader(input);
+			block_header[i] = new BlockHeader(b);
 	}
 
 	// Produce raw version of message payload

@@ -1,10 +1,7 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.VariableLengthInteger;
 import org.coinjuice.Util;
@@ -31,7 +28,7 @@ public class GetHeadersMessagePayload extends MessagePayload {
 	private char[] hash_stop;
 
 	// The maximum number of blocks 
-	static final private int MAXIMUM_NUMBER_OF_BLOCKS = 2000;
+	//static final private int MAXIMUM_NUMBER_OF_BLOCKS = 2000;
 
 	// Constructor
 	public GetHeadersMessagePayload(int version, VariableLengthInteger hash_count, char[] block_locator_hashes, char[] hash_stop) {
@@ -42,12 +39,16 @@ public class GetHeadersMessagePayload extends MessagePayload {
 		this.hash_stop = hash_stop;
 	}
 
-	public GetHeadersMessagePayload(LittleEndianDataInputStream input) throws IOException {
+	public GetHeadersMessagePayload(ByteBuffer b) {
 
-		version = input.readInt();
-		hash_count = new VariableLengthInteger(input);
-		block_locator_hashes = Util.readChar(input, 32);
-		hash_stop = Util.readChar(input, 32);
+		version = b.getInt();
+		hash_count = new VariableLengthInteger(b);
+		
+		block_locator_hashes = new char[32];
+		Util.readChar(b, block_locator_hashes);
+		
+		hash_stop = new char[32];
+		Util.readChar(b, hash_stop);
 	}
 
 	// Produce raw version of message payload

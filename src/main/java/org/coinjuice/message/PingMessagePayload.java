@@ -1,10 +1,7 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 /** \class PingMessagePayload
 *
@@ -23,8 +20,8 @@ public class PingMessagePayload extends MessagePayload {
 		this.nonce = nonce;
 	}
 
-	public PingMessagePayload(LittleEndianDataInputStream input) throws IOException {
-		nonce = input.readLong();
+	public PingMessagePayload(ByteBuffer b) {
+		nonce = b.getLong();
 	}
 
 	public ByteBuffer raw() {

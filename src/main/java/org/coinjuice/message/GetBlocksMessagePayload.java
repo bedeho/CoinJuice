@@ -1,13 +1,9 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.coinjuice.message.field.VariableLengthInteger;
-
-import com.google.common.io.LittleEndianDataInputStream;
-
 import org.coinjuice.Util;
 
 /** \class GetBlocksMessagePayload
@@ -43,12 +39,16 @@ public class GetBlocksMessagePayload extends MessagePayload {
 		this.hash_stop = hash_stop;
 	}
 
-	public GetBlocksMessagePayload(LittleEndianDataInputStream input) throws IOException {
+	public GetBlocksMessagePayload(ByteBuffer b) {
 
-		version = input.readInt();
-		hash_count = new VariableLengthInteger(input);
-		block_locator_hashes = Util.readChar(input, 32);
-		hash_stop = Util.readChar(input, 32); // Hash of the last desired block; set to zero to get as many blocks as possible (500)
+		version = b.getInt();
+		hash_count = new VariableLengthInteger(b);
+		
+		block_locator_hashes = new char[32];
+		Util.readChar(b, block_locator_hashes);
+		
+		hash_stop = new char[32];
+		Util.readChar(b, hash_stop); // Hash of the last desired block; set to zero to get as many blocks as possible (500)
 	}
 
 	// Produce raw version of message payload

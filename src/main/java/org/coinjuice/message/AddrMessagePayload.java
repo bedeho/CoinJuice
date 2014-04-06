@@ -1,10 +1,7 @@
 package org.coinjuice.message;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import org.coinjuice.message.field.NetworkAddress;
 import org.coinjuice.exception.CountFieldToLargeException;
@@ -26,13 +23,15 @@ public class AddrMessagePayload extends MessagePayload {
 	// Number of address entries (max: 1000)
 	private int count;
 
+	final static int MAX_NUMBER_OF_ADDRESS_ENTRIES = 1000;
+	
 	// Address of other nodes on the network. version<209 will only read the first one. 
 	// The uint32_t is a time stamp (see note below).
 	private int [] addr_list_timestamp;
 	private NetworkAddress [] addr_list_net_addr;
 
 	// For version >= 31402, addresses are prefixed with timestamp
-	final int VERSION_SPLIT_NR = 31402;
+	final static int VERSION_SPLIT_NR = 31402;
 
 	// Constructor
 	public AddrMessagePayload(int version, int count, int [] addr_list_timestamp, NetworkAddress [] addr_list_net_addr) {
@@ -43,12 +42,12 @@ public class AddrMessagePayload extends MessagePayload {
 		this.addr_list_net_addr = addr_list_net_addr;
 	}
 
-	public AddrMessagePayload(LittleEndianDataInputStream input) throws CountFieldToLargeException, IOException {
+	public AddrMessagePayload(ByteBuffer b) throws CountFieldToLargeException {
 
 		// count
-		count = input.readInt();
+		count = b.getInt();
 
-		if(count > 1000)
+		if(count > MAX_NUMBER_OF_ADDRESS_ENTRIES)
 			throw new CountFieldToLargeException(count);
 
 		// Load address nodes
@@ -58,11 +57,11 @@ public class AddrMessagePayload extends MessagePayload {
 		for(int i = 0;i < count;i++) {
 
 			if(version < VERSION_SPLIT_NR)
-				addr_list_net_addr[i] = new NetworkAddress(version, input);
+				addr_list_net_addr[i] = new NetworkAddress(version, b);
 			else {
 				
-				addr_list_timestamp[i] = input.readInt();
-				addr_list_net_addr[i] = new NetworkAddress(version, input);
+				addr_list_timestamp[i] = b.getInt();
+				addr_list_net_addr[i] = new NetworkAddress(version, b);
 			}
 		}
 	}
