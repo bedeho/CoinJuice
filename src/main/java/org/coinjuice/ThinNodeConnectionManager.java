@@ -38,7 +38,7 @@ public class ThinNodeConnectionManager extends Thread {
     // Processing state of connection
 
 	// Constructors
-	ThinNodeConnectionManager(ThinNode node, InetSocketAddress peer, int version) {
+	ThinNodeConnectionManager(ThinNode node, InetSocketAddress peer, int version, short localPort) {
 
 		this.node = node;
 		this.peer = peer;
@@ -67,16 +67,18 @@ public class ThinNodeConnectionManager extends Thread {
             // - if an I/O error occurs when opening data stream
         } 
         
-        // Add raw byte rader to the underlying stream, which buffers eveyrthing, so that later we can dump raw content from it.
-
+        // Add raw byte rader to the underlying stream, which buffers everything, so that later we can dump raw content from it.
+        int time = ;
+        char[] IPv6 = ;
+        short port = ;
         
         // Create version message
-        VersionMessagePayload p = new VersionMessagePayload(version, new Services(), timestamp, new NetworkAddress()); 
-        MessageHeader h = new MessageHeader(MAIN, VERSION, p.rawLength(), p.getChecksumField());
+        VersionMessagePayload p = new VersionMessagePayload(version, new Services(), timestamp, new NetworkAddress(version, time, new Services(), IPv6, port)); 
+        MessageHeader h = new MessageHeader(MessageHeader.Magic.MAIN, MessageType.VERSION, p.rawLength(), p.computeChecksum());
         Message versionMessage = new Message(h,p);
 
         // Send version message
-        output.write(versionMessage.raw());
+        output.write(versionMessage.raw().array());
 
         // Message processing loop
         while(true) { // <-- how to stop thread in good way

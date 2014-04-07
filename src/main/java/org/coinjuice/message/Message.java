@@ -68,7 +68,7 @@ public class Message {
 		validateChecksumAndLengthFields();
 	}
 
-	public static MessagePayload createMessagePayload(ByteBuffer b, MessageType type) throws UnImplemenetedMessageException, CountFieldToLargeException, IOException, ToManyEntriesException, UnknownObjectTypeException, IncorrectNumberOfTransactionsException {
+	private static MessagePayload createMessagePayload(ByteBuffer b, MessageType type) throws UnImplemenetedMessageException, CountFieldToLargeException, IOException, ToManyEntriesException, UnknownObjectTypeException, IncorrectNumberOfTransactionsException {
 		
 		MessagePayload p;
 		
@@ -106,7 +106,7 @@ public class Message {
 	}
 
 	// Check that present checksum and length fields match payload
-	protected void validateChecksumAndLengthFields() throws IncorrectChecksumException, IncorrectPayloadLengthException {
+	private void validateChecksumAndLengthFields() throws IncorrectChecksumException, IncorrectPayloadLengthException {
 
 		// Payload
 		byte [] p = payload.raw().array();
